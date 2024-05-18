@@ -12,7 +12,7 @@ services:
       - uid=1500
       - gid=1500
       - webui_port=8037
-      - py_conf='/python/py.conf'
+      - py_conf=/config/py.conf
     volumes:
       - /data/qbittorrent:/config:rw
       - /junk/torrents:/system:rw

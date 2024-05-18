@@ -9,6 +9,7 @@ from threading import Thread
 from hashlib import md5
 from pathlib import Path
 from qbt import QBt
+from Config import Config
 
 separator = '---------------------'
 
@@ -18,65 +19,23 @@ class Process:
             skipscan: bool = False
     ) -> None:
         self.qbt: QBt = QBt()
-        self.conf: str = os.environ('py_conf') if os.environ('py_conf') else '/config/py.conf'
-        self.copy: bool = False
-        self.clamCheck = None
-        self.log_level = 'INFO'
+        self.config: Config = Config()
+        self.config._load()
 
         # Run parametres
-        self.dry = dry
-        self.skipscan = skipscan
-        self.interactive: bool = False
-
-        # Categoried to skip copy processing
-        self.exclude_copy: list = list()
+        self.config.dry = dry
+        self.config.skipScan = skipscan
 
         self.srcPath: Path
-        self.processPath: Path
-        self.destPath: Path
-
-        # Load from conf
-        self._load()
 
         # Update clamscan
-        if self.clamCheck.date() < datetime.date.today():
+        if self.config.clamUpdated.date() < datetime.date.today():
             subprocess.run(['freshclam'])
-            self.clamCheck = datetime.date.today()
-            self._save()
+            self.config.update_clam()
             print(f'\n{separator}\n')
 
-        if self.dry: print('Dry run enabled, no changes will be made.')
+        if self.config.dry: print('Dry run enabled, no changes will be made.')
         pass
-
-    def _load(self):
-        data = None
-        if Path(self.conf).exists:
-            with open(self.conf) as r:
-                data = json.loads(r.read())
-        
-        # If no data was loaded
-        if not data: data = dict()
-
-        # Load variables from data
-        self.copy = data.get("copy", False)
-        self.exclude_copy = data.get("exclude_from_copy", list())
-        self.qbt.seeding = data.get("seeding_category", "seeding")
-        self.processPath = Path(data.get("repPath", '/completed/.auto/replicate'))
-        self.destPath = Path(data.get("destPath", '/process'))
-        self.clamCheck = datetime.datetime.strptime(
-            data.get("clamCheck", '2000-01-01'),
-            '%Y-%m-%d')
-    
-    def _save(self):
-        data = {
-            "copy": self.copy,
-            "exclude_from_copy": self.exclude_copy,
-            "repPath": str(self.processPath),
-            "destPath": str(self.destPath),
-            "clamCheck": str(self.clamCheck)
-        }
-        with open(Path.cwd().joinpath('.conf'), 'w') as w:
-            w.write(json.dumps(data, indent=4))
 
     def set_port(self):
         port = int(open('/config/gluetun/forwarded_port').read())
@@ -111,7 +70,7 @@ class Process:
         print(separator)
 
         try:
-            if (not self.skipscan and not self.dry and
+            if (not self.config.skipScan and not self.config.dry and
                 not "scanned" in self.qbt.get_tags()):
                 print('Beginning AV scan...')
                 self.scan(inputPath)
@@ -123,11 +82,11 @@ class Process:
             print('Terminating processing...')
             self.exit()
         
-        if category in self.exclude_copy:
+        if category in self.config.excludeCategories:
             print('Category is in excluded list, skipping file replication.')
             self.exit()
         
-        if not self.copy:
+        if not self.config.copy:
             print('File replication is disabled.')
             self.exit()
         
@@ -138,15 +97,15 @@ class Process:
             self.replicate_dir(inputPath, name)
         else:
             self.replicate_file(inputPath,
-                                self.processPath.joinpath(inputPath.name),
-                                self.destPath.joinpath(inputPath.name),
+                                self.config.repPath.joinpath(inputPath.name),
+                                self.config.dstPath.joinpath(inputPath.name),
                                 True)
         print('Finished replicating files.')
-        self.clean_dir(self.processPath)
+        self.clean_dir(self.config.repPath)
         print(separator)
 
         # Change torrent category
-        #self.qbt.set_category('seeding')
+        self.qbt.set_category(self.config.seedCategory)
         self.qbt.clear_tags()
     
     def scan(self, path) -> bool | Exception:
@@ -169,8 +128,8 @@ class Process:
     def replicate_dir(self, path, name) -> bool | Exception:
         # Set initial path variables
         path = Path(path)
-        process = self.processPath
-        dest = self.destPath
+        process = self.config.repPath
+        dest = self.config.dstPath
         replicatedfiles = list()
 
         # Check for subdirectories and change paths accordingly
@@ -178,8 +137,8 @@ class Process:
         print(dirs)
         if len(dirs) > 0:
             print('Processing into subdirectory.')
-            process = self.processPath.joinpath(name)
-            dest = self.destPath.joinpath(name)
+            process = self.config.repPath.joinpath(name)
+            dest = self.config.dstPath.joinpath(name)
 
         # Collect files to replicate
         files = [file for file in path.rglob('*') if file.is_file()]
@@ -193,7 +152,7 @@ class Process:
             
             # Copy file and process if failed
             if not self.replicate_file(file, fileprocess):
-                if (self.interactive and input(
+                if (self.config.interactive and input(
                     'Replication failed, continue processing? (y/n)').casefold() == 'n'):
                     if input('Delete already replicated files? (y/m): ').casefold() == 'y':
                         for rfile in replicatedfiles:
@@ -215,12 +174,12 @@ class Process:
         copy_thread.start()
 
         # Print progress of the copy
-        if self.interactive:
+        if self.config.interactive:
             while True:
+                time.sleep(1)
                 dest_size = os.path.getsize(proc)
                 progress = dest_size/src_size
                 print(f"\r{progress:.2%}", end="")
-                time.sleep(1)
 
                 if progress >= 1.0:
                     copy_thread.join()
