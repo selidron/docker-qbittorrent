@@ -1,0 +1,23 @@
+services:
+  qbittorrent:
+    image: selidron/qbittorrent:develop
+    container_name: qbittorrent
+    network_mode: container:gluetun
+    deploy:
+      restart_policy:
+        condition: any
+        delay: '15s'
+        window: '30s'
+    environment:
+      - uid=1500
+      - gid=1500
+      - webui_port=8037
+      - py_conf='/python/py.conf'
+    volumes:
+      - /data/qbittorrent:/config:rw
+      - /junk/torrents:/system:rw
+      - /junk/torrents/downloading:/downloads:rw
+      - /junk/torrents/completed:/completed:rw
+      - /junk/torrents/.porn:/porn:rw
+      - /files/.seeds:/seeds:rw
+      - /junk/process:/process:rw

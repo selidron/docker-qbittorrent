@@ -1,0 +1,41 @@
+#!/bin/bash
+
+echo "UID: ${uid}"
+echo "GID: ${gid}"
+echo "Port: ${webui_port}"
+
+# Create Symlink for config
+mkdir /home/.config
+mkdir /home/.cache
+mkdir -p /home/.local/share
+ln -s /config/qBittorrent /home/.config/qBittorrent
+ln -s /config/qBittorrent/cache /home/.cache/qBittorrent
+ln -s /config/qBittorrent /home/.local/share/qBittorrent
+
+# Initialise Qbittorrent default if config  does not exist
+if  [ ! -d '/config/qBittorrent' ] ; then
+    mkdir '/config/qBittorrent'
+    cp /defaults/qBittorrent.conf /config/qBittorrent/qBittorrent.conf
+    chown app:app -R /defaults/qBittorrent
+fi
+
+# Make adjustments to user configuration, if necessary
+if [ ! id $uid ] || [ ! $(getent group $gid) ] ; then
+    old_uid=`id -u app`
+    if [ ! id $uid ] ; then
+        usermod -u $uid app
+    fi
+    if [ ! $(getent group $gid) ] ; then
+        groupmod -g $gid app
+    fi
+    #TODO: implement changing ownership after id change
+    #chown -Rhc --from=$old_uid :$gid
+    #chown -Rhc --from=$old_uid $uid
+fi
+
+# Start Port Monitor in background
+echo "Launching port management service..."
+/python/PortManager.py &
+
+# Start qBittorrent as app
+su app -c '/usr/bin/qbittorrent-nox --webui-port="${webui_port}"'

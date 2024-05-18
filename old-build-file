@@ -1,0 +1,27 @@
+# Dockerfile for qbittorrent by selidron
+# Built using baseimages:
+#       https://github.com/linuxserver/docker-qbittorrent
+
+# Pull base image(s)
+FROM lscr.io/linuxserver/qbittorrent:latest
+
+# Install additional packages
+RUN apk add font-dejavu python3 py3-pip qt6-qtbase-sqlite clamav
+
+# Install python3 qbittorrent-api
+RUN pip install qbittorrent-api --break-system-packages
+
+# Update virus database
+RUN chmod 777 /var/lib/clamav && freshclam
+
+# Copy root to system
+COPY root /
+
+# Make python scripts accessible to any user
+RUN chmod 777 -R /python
+
+# Expose ports
+EXPOSE 8080
+
+# Volumes
+VOLUME /config

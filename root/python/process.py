@@ -1,4 +1,3 @@
-import argparse
 import os
 import sys
 import subprocess
@@ -19,7 +18,8 @@ class Process:
             skipscan: bool = False
     ) -> None:
         self.qbt: QBt = QBt()
-        self.data: dict = None
+        self.conf: str = os.environ('py_conf') if os.environ('py_conf') else '/config/py.conf'
+        self.copy: bool = False
         self.clamCheck = None
         self.log_level = 'INFO'
 
@@ -27,6 +27,10 @@ class Process:
         self.dry = dry
         self.skipscan = skipscan
         self.interactive: bool = False
+
+        # Categoried to skip copy processing
+        self.exclude_copy: list = list()
+
         self.srcPath: Path
         self.processPath: Path
         self.destPath: Path
@@ -45,25 +49,34 @@ class Process:
         pass
 
     def _load(self):
-        with open(Path.cwd().joinpath('.conf'), 'r') as r:
-            self.data = json.loads(r.read())
+        data = None
+        if Path(self.conf).exists:
+            with open(self.conf) as r:
+                data = json.loads(r.read())
         
         # If no data was loaded
-        if not self.data: self.data = dict()
+        if not data: data = dict()
 
         # Load variables from data
-        self.srcPath = Path(self.data.get("srcPath", '/completed'))
-        self.processPath = Path(self.data.get("repPath", '/completed/.auto/replicate'))
-        self.destPath = Path(self.data.get("destPath", '/process'))
+        self.copy = data.get("copy", False)
+        self.exclude_copy = data.get("exclude_from_copy", list())
+        self.qbt.seeding = data.get("seeding_category", "seeding")
+        self.processPath = Path(data.get("repPath", '/completed/.auto/replicate'))
+        self.destPath = Path(data.get("destPath", '/process'))
         self.clamCheck = datetime.datetime.strptime(
-            self.data.get("clamCheck", '2000-01-01'),
+            data.get("clamCheck", '2000-01-01'),
             '%Y-%m-%d')
     
     def _save(self):
-        self.data["clamCheck"] = str(datetime.date.today())
-        print(self.data)
+        data = {
+            "copy": self.copy,
+            "exclude_from_copy": self.exclude_copy,
+            "repPath": str(self.processPath),
+            "destPath": str(self.destPath),
+            "clamCheck": str(self.clamCheck)
+        }
         with open(Path.cwd().joinpath('.conf'), 'w') as w:
-            w.write(json.dumps(self.data, indent=4))
+            w.write(json.dumps(data, indent=4))
 
     def set_port(self):
         port = int(open('/config/gluetun/forwarded_port').read())
@@ -80,6 +93,7 @@ class Process:
         # Iterate through torrents and process
         for torrent in self.qbt.torrents:
             self.qbt.torrent = torrent
+            self.srcPath = Path(self.qbt.torrent.save_path)
             self.process(torrent.hash)
 
     def process(self, hash) -> None:
@@ -109,7 +123,12 @@ class Process:
             print('Terminating processing...')
             self.exit()
         
-        if category == "other":
+        if category in self.exclude_copy:
+            print('Category is in excluded list, skipping file replication.')
+            self.exit()
+        
+        if not self.copy:
+            print('File replication is disabled.')
             self.exit()
         
         print(separator)

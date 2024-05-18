@@ -1,33 +1,47 @@
-# Dockerfile for qbittorrent by selidron
-# Built using baseimages:
-#		https://github.com/jlesage/docker-baseimage-gui (pending)
-#       https://github.com/linuxserver/docker-qbittorrent
+# Qbittorrent Docker Image
+#   by selidron
 
-# Pull base image(s)
-#FROM jlesage/baseimage-gui:alpine-3.19-v4
-FROM lscr.io/linuxserver/qbittorrent:latest
+# Pull Alpine base
+FROM alpine:latest
 
-# Install additional packages
-RUN apk add font-dejavu python3 py3-pip qt6-qtbase-sqlite clamav
+# Define ARGS
+ARG uid=1000
+ARG gid=1000
+ARG tz='America/New_York'
+ARG umask=000
+ARG webui_port=8080
 
-# Install python3 qbittorrent-api
+# Set Environment Variables
+ENV uid=1000 \
+    gid=1000 \
+    tz='America/New_York' \
+    umask=000 \
+    webui_port=8080
+
+RUN apk add --no-cache \
+    bash font-dejavu python3 py3-pip qt6-qtbase qt6-qtbase-sqlite clamav \
+    busybox-binsh libcrypto3 libgcc libstdc++ libtorrent-rasterbar musl zlib qbittorrent-nox
+
+# Install qbittorrent-api
 RUN pip install qbittorrent-api --break-system-packages
 
-# Clone rootfs to system
-COPY rootfs /
-
-# Set name of the application
-#RUN set-cont-env APP_NAME "qbittorrent" # Needed for J leSages base
-
-# Update virus database (not working)
-#RUN wget -P /var/lib/clamav http://database.clamav.net/main.cvd
+# Update virus database
 RUN chmod 777 /var/lib/clamav && freshclam
 
+# Copy root to system
+COPY root /
+
+# Set scripts ownership and access
+RUN chown root:root -R /python && chmod 755 -R /python
+
+# Create defaults for user app (if UID and GID are provided as environment variable, init will change this)
+RUN adduser -HD -h /home -u 1000 app && chmod 777 -R /home
+
 # Expose ports
-EXPOSE 8080 6881 6881/udp
+EXPOSE 8080
 
 # Volumes
 VOLUME /config
 
-# Copy base python scripts to config
-COPY src/python /config/python
+# Set entry point
+ENTRYPOINT [ "/init" ]

@@ -10,6 +10,8 @@ class QBt:
         self.torrents:list = list()
         self.torrent: TorrentDictionary = None
         self.files: list[File] = list()
+
+        self.seeding: str = "seeding"
         try:
             self.client.auth_log_in()
         except LoginFailed as e:
@@ -27,7 +29,7 @@ class QBt:
         for torrent in torrents:
             if torrent.progress >= progress:
                 # Unless category is seeding, remove seeding torrents
-                if category.casefold() != "seeding" and torrent.category.casefold() != 'seeding':
+                if category.casefold() != self.seeding and torrent.category.casefold() != self.seeding:
                     self.torrents.append(torrent)
 
     def get_torrent(self, hash):
