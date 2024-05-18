@@ -10,6 +10,7 @@ from hashlib import md5
 from pathlib import Path
 from qbt import QBt
 from Config import Config
+from Config import Config
 
 separator = '---------------------'
 
@@ -21,8 +22,12 @@ class Process:
         self.qbt: QBt = QBt()
         self.config: Config = Config()
         self.config._load()
+        self.config: Config = Config()
+        self.config._load()
 
         # Run parametres
+        self.config.dry = dry
+        self.config.skipScan = skipscan
         self.config.dry = dry
         self.config.skipScan = skipscan
 
@@ -34,6 +39,7 @@ class Process:
             self.config.update_clam()
             print(f'\n{separator}\n')
 
+        if self.config.dry: print('Dry run enabled, no changes will be made.')
         if self.config.dry: print('Dry run enabled, no changes will be made.')
         pass
 
@@ -71,6 +77,7 @@ class Process:
 
         try:
             if (not self.config.skipScan and not self.config.dry and
+            if (not self.config.skipScan and not self.config.dry and
                 not "scanned" in self.qbt.get_tags()):
                 print('Beginning AV scan...')
                 self.scan(inputPath)
@@ -83,9 +90,11 @@ class Process:
             self.exit()
         
         if category in self.config.excludeCategories:
+        if category in self.config.excludeCategories:
             print('Category is in excluded list, skipping file replication.')
             self.exit()
         
+        if not self.config.copy:
         if not self.config.copy:
             print('File replication is disabled.')
             self.exit()
@@ -99,12 +108,16 @@ class Process:
             self.replicate_file(inputPath,
                                 self.config.repPath.joinpath(inputPath.name),
                                 self.config.dstPath.joinpath(inputPath.name),
+                                self.config.repPath.joinpath(inputPath.name),
+                                self.config.dstPath.joinpath(inputPath.name),
                                 True)
         print('Finished replicating files.')
+        self.clean_dir(self.config.repPath)
         self.clean_dir(self.config.repPath)
         print(separator)
 
         # Change torrent category
+        self.qbt.set_category(self.config.seedCategory)
         self.qbt.set_category(self.config.seedCategory)
         self.qbt.clear_tags()
     
@@ -130,6 +143,8 @@ class Process:
         path = Path(path)
         process = self.config.repPath
         dest = self.config.dstPath
+        process = self.config.repPath
+        dest = self.config.dstPath
         replicatedfiles = list()
 
         # Check for subdirectories and change paths accordingly
@@ -137,6 +152,8 @@ class Process:
         print(dirs)
         if len(dirs) > 0:
             print('Processing into subdirectory.')
+            process = self.config.repPath.joinpath(name)
+            dest = self.config.dstPath.joinpath(name)
             process = self.config.repPath.joinpath(name)
             dest = self.config.dstPath.joinpath(name)
 
@@ -152,6 +169,7 @@ class Process:
             
             # Copy file and process if failed
             if not self.replicate_file(file, fileprocess):
+                if (self.config.interactive and input(
                 if (self.config.interactive and input(
                     'Replication failed, continue processing? (y/n)').casefold() == 'n'):
                     if input('Delete already replicated files? (y/m): ').casefold() == 'y':
@@ -175,7 +193,9 @@ class Process:
 
         # Print progress of the copy
         if self.config.interactive:
+        if self.config.interactive:
             while True:
+                time.sleep(1)
                 time.sleep(1)
                 dest_size = os.path.getsize(proc)
                 progress = dest_size/src_size

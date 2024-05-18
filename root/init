@@ -13,6 +13,7 @@ ln -s /config/qBittorrent/cache /home/.cache/qBittorrent
 ln -s /config/qBittorrent /home/.local/share/qBittorrent
 
 # Initialise configurations
+# Initialise configurations
 if  [ ! -d '/config/qBittorrent' ] ; then
     mkdir '/config/qBittorrent'
     cp /defaults/qBittorrent.conf /config/qBittorrent/qBittorrent.conf
