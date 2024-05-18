@@ -77,7 +77,6 @@ class Process:
 
         try:
             if (not self.config.skipScan and not self.config.dry and
-            if (not self.config.skipScan and not self.config.dry and
                 not "scanned" in self.qbt.get_tags()):
                 print('Beginning AV scan...')
                 self.scan(inputPath)
@@ -90,11 +89,9 @@ class Process:
             self.exit()
         
         if category in self.config.excludeCategories:
-        if category in self.config.excludeCategories:
             print('Category is in excluded list, skipping file replication.')
             self.exit()
         
-        if not self.config.copy:
         if not self.config.copy:
             print('File replication is disabled.')
             self.exit()
@@ -170,7 +167,6 @@ class Process:
             # Copy file and process if failed
             if not self.replicate_file(file, fileprocess):
                 if (self.config.interactive and input(
-                if (self.config.interactive and input(
                     'Replication failed, continue processing? (y/n)').casefold() == 'n'):
                     if input('Delete already replicated files? (y/m): ').casefold() == 'y':
                         for rfile in replicatedfiles:
@@ -192,7 +188,6 @@ class Process:
         copy_thread.start()
 
         # Print progress of the copy
-        if self.config.interactive:
         if self.config.interactive:
             while True:
                 time.sleep(1)
