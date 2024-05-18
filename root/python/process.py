@@ -191,7 +191,7 @@ class Process:
         os.chmod(proc, 0o777)
 
         # Compare hashes
-        print('Calculating MD5 Hashes...')
+        print('\rCalculating MD5 Hashes...')
         srcHash = self.get_hash(src)
         procHash = self.get_hash(proc)
         if srcHash == procHash:

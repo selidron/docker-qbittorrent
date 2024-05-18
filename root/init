@@ -18,7 +18,7 @@ if  [ ! -d '/config/qBittorrent' ] ; then
     cp /defaults/qBittorrent.conf /config/qBittorrent/qBittorrent.conf
     chown app:app -R /defaults/qBittorrent
 fi
-if [ ! -d '/config/py.conf' ] ; then
+if [ ! /config/py.conf ] ; then
     cp /python/py.conf /config/py.conf
     chown app:app /config/py.conf
 fi

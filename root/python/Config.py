@@ -33,6 +33,8 @@ class Config:
         self.copy = data.get("copy", False)
         self.seedCategory = data.get("seedCategory", "seeding")
         self.excludeCategories = data.get("excludeFromCopy", list())
+        self.repPath = Path(data.get("repPath", ""))
+        self.dstPath = Path(data.get("dstPath", ""))
     
     def _save(self):
         data = {
