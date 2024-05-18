@@ -5,18 +5,22 @@ echo "GID: ${gid}"
 echo "Port: ${webui_port}"
 
 # Create Symlink for config
-mkdir /home/.config
-mkdir /home/.cache
+mkdir -p /home/.config
+mkdir -p /home/.cache
 mkdir -p /home/.local/share
 ln -s /config/qBittorrent /home/.config/qBittorrent
 ln -s /config/qBittorrent/cache /home/.cache/qBittorrent
 ln -s /config/qBittorrent /home/.local/share/qBittorrent
 
-# Initialise Qbittorrent default if config  does not exist
+# Initialise configurations
 if  [ ! -d '/config/qBittorrent' ] ; then
     mkdir '/config/qBittorrent'
     cp /defaults/qBittorrent.conf /config/qBittorrent/qBittorrent.conf
     chown app:app -R /defaults/qBittorrent
+fi
+if [ ! -d '/config/py.conf' ] ; then
+    cp /python/py.conf /config/py.conf
+    chown app:app /config/py.conf
 fi
 
 # Make adjustments to user configuration, if necessary

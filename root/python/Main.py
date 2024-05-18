@@ -42,10 +42,10 @@ process = process.Process(
     args.dryrun,
     args.skipscan
 )
-process.interactive = args.manual
-if args.process: process.processPath = args.process
-if args.output: process.destPath = args.output
-process.log_level = args.log
+process.config.interactive = args.manual
+if args.process: process.config.repPath = args.process
+if args.output: process.config.dstPath = args.output
+process.config.logLevel = args.log
 
 if args.port:
     process.set_port()
