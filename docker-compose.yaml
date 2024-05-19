@@ -15,9 +15,7 @@ services:
       - py_conf=/config/py.conf
     volumes:
       - /data/qbittorrent:/config:rw
-      - /junk/torrents:/system:rw
       - /junk/torrents/downloading:/downloads:rw
       - /junk/torrents/completed:/completed:rw
-      - /junk/torrents/.porn:/porn:rw
       - /files/.seeds:/seeds:rw
       - /junk/process:/process:rw
