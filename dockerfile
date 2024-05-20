@@ -19,7 +19,7 @@ ENV uid=1000 \
     webui_port=8080
 
 RUN apk add --no-cache \
-    bash font-dejavu python3 py3-pip qt6-qtbase qt6-qtbase-sqlite clamav \
+    bash nano font-dejavu python3 py3-pip qt6-qtbase qt6-qtbase-sqlite clamav \
     busybox-binsh libcrypto3 libgcc libstdc++ libtorrent-rasterbar musl zlib qbittorrent-nox
 
 # Install qbittorrent-api
@@ -39,6 +39,9 @@ RUN adduser -HD -h /home -u 1000 app && chmod 777 -R /home
 
 # Expose ports
 EXPOSE 8080
+
+# Modify PATH variable
+ENV PATH="${PATH}:/python/Main.py"
 
 # Volumes
 VOLUME /config
