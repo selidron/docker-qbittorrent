@@ -153,10 +153,10 @@ class Process:
             filedest = dest.joinpath(relpath)
             
             # Copy file and process if failed
-            if not self.replicate_file(file, fileprocess):
+            if not self.replicate_file(file, fileprocess, filedest):
                 if (self.config.interactive and input(
                     'Replication failed, continue processing? (y/n)').casefold() == 'n'):
-                    if input('Delete already replicated files? (y/m): ').casefold() == 'y':
+                    if input('Delete already replicated files? (y/n): ').casefold() == 'y':
                         for rfile in replicatedfiles:
                             os.remove(rfile)
                     self.exit()
@@ -168,7 +168,14 @@ class Process:
         for file in replicatedfiles:
             self.move_file(file[0], file[1])
 
-    def replicate_file(self, src, proc: Path, dest = None, move: bool = False) -> bool:
+    def replicate_file(self, src, proc: Path, dest: Path, move: bool = False) -> bool:
+        print('Calculating MD5 hash of source...')
+        srcHash = self.get_hash(src)
+        if dest.exists() and self.get_hash(dest) == srcHash:
+            print('File already exists in destination, skipping replication processing.')
+            return False
+        if proc.exists() and self.get_hash(proc) == srcHash:
+            return True
         print(f'Replicating {src}...')
         proc.parent.mkdir(parents=True, exist_ok=True)
         src_size = os.path.getsize(src)
@@ -194,7 +201,6 @@ class Process:
 
         # Compare hashes
         print('\rCalculating MD5 Hashes...')
-        srcHash = self.get_hash(src)
         procHash = self.get_hash(proc)
         if srcHash == procHash:
             print(f'{srcHash} == {procHash}')
