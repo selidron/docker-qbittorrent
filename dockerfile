@@ -41,7 +41,7 @@ RUN adduser -HD -h /home -u 1000 app && chmod 777 -R /home
 EXPOSE 8080
 
 # Modify PATH variable
-ENV PATH="${PATH}:/python/Main.py"
+ENV PATH="${PATH}:/python"
 
 # Volumes
 VOLUME /config

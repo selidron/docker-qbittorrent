@@ -3,6 +3,10 @@
 echo "UID: ${uid}"
 echo "GID: ${gid}"
 echo "Port: ${webui_port}"
+echo "py.conf Location: ${py_conf}"
+
+# Get yesterday's date
+date=$(date -d @$(( $(/bin/date +%s ) - 86400 )) +%Y-%m-%d)
 
 # Create Symlink for config
 mkdir -p /home/.config
@@ -13,13 +17,23 @@ ln -s /config/qBittorrent/cache /home/.cache/qBittorrent
 ln -s /config/qBittorrent /home/.local/share/qBittorrent
 
 # Initialise configurations
-# Initialise configurations
 if  [ ! -d '/config/qBittorrent' ] ; then
     mkdir '/config/qBittorrent'
     cp /defaults/qBittorrent.conf /config/qBittorrent/qBittorrent.conf
     chown app:app -R /defaults/qBittorrent
 fi
-if [ ! /config/py.conf ] ; then
+if [ ! -f $py_conf ] ; then
+    echo "Generating py.conf..."
+    touch $py_conf
+    echo "# Python Configuration File"\n \
+        "{"\n \
+        '   "copy": ${copy:=false},'\n \
+        '   "excludeFromCopy": []'\n \
+        '   "seedCategory": "seeding"'\n \
+        '   "repPath": "${repPath:=/process/.auto}"'\n \
+        '   "destPath": "${dstPath:=/process}"'\n \
+        '   "clamCheck": "${date}"'\n \
+        '}' >> $py_conf
     cp /python/py.conf /config/py.conf
     chown app:app /config/py.conf
 fi
