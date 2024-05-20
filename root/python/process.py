@@ -60,7 +60,7 @@ class Process:
     def process(self, hash) -> None:
         # Set torrent is not set
         if not self.qbt.torrent:
-            self.qbt.torrent = self.qbt.get_torrent(hash)
+            self.qbt.get_torrent(hash)
 
         # Extract information from torrent
         name = self.qbt.torrent.name

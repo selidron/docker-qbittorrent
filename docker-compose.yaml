@@ -13,6 +13,7 @@ services:
       - gid=1500
       - webui_port=8037
       - py_conf=/config/py.conf
+      - port_check_interval=10800
     volumes:
       - /data/qbittorrent:/config:rw
       - /junk/torrents/downloading:/downloads:rw

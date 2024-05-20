@@ -36,7 +36,7 @@ class QBt:
         try:
             self.torrent = (self.client.torrents.info(torrent_hashes=[hash]))[0]
             for file in self.torrent.files:
-                self.files.append(File(file.name))
+                self.files.append(file)
             return True
         except Exception as e:
             raise TorrentDataFailed(f'Unable to retrieve torrent: {e}')
