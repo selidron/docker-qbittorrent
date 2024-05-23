@@ -1,0 +1,24 @@
+#!/bin/bash
+
+echo "Checking py.conf"
+
+# Get yesterday's date
+date=$(date -d @$(( $(/bin/date +%s ) - 86400 )) +%Y-%m-%d)
+
+if [ ! -f $py_conf ] ; then
+    echo "Generating py.conf..."
+    touch $py_conf
+    echo "# Python Configuration File"\n \
+        "{"\n \
+        '   "copy": ${copy:=false},'\n \
+        '   "excludeFromCopy": []'\n \
+        '   "seedCategory": "seeding"'\n \
+        '   "repPath": "${repPath:=/process/.auto}"'\n \
+        '   "destPath": "${dstPath:=/process}"'\n \
+        '   "clamCheck": "${date}"'\n \
+        '}' >> $py_conf
+    chown app:app /config/py.conf
+    exit 0
+else
+    exit 0
+fi

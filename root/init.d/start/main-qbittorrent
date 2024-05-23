@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Start qBittorrent as app
+echo "Launching qBittorrent"
+su app -c '/usr/bin/qbittorrent-nox --webui-port="${webui_port}"'

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo "Checking qBittorrent configuration"
+
+path=/config/.config/qBittorrent
+
+# Initialise config
+if  [ ! -d $path ] ; then
+    echo "Initialising qBittorrent default settings..."
+    mkdir $path
+    cp /defaults/qBittorrent.conf $path/qBittorrent.conf
+    chown app:app -R $path
+    exit 0
+else
+    echo "qBittorrent already initalised."
+    exit 0
+fi
