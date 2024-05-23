@@ -176,9 +176,17 @@ class Process:
             return False
         if proc.exists() and self.get_hash(proc) == srcHash:
             return True
+        
         print(f'Replicating {src}...')
+
+        # Create parent directory
         proc.parent.mkdir(parents=True, exist_ok=True)
+        os.chmod(proc.parent, 0o777)
+
+        # Get source file size
         src_size = os.path.getsize(src)
+
+        # Initiate copy
         copy_thread = Thread(target=shutil.copy, args=(src, proc))
         copy_thread.start()
 
