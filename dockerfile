@@ -17,7 +17,9 @@ ARG webui_port=8080
 #    gid=1000 \
 #    tz='America/New_York' \
 #    umask=000 \
-ENV webui_port=8080
+ENV webui_port=8080 \
+    py_conf=/config/py.conf \
+    port_check_interval=10800
 
 #RUN apk add --no-cache \
 #    bash nano font-dejavu python3 py3-pip qt6-qtbase qt6-qtbase-sqlite clamav \

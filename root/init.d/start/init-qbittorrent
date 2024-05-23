@@ -7,7 +7,7 @@ path=/config/.config/qBittorrent
 # Initialise config
 if  [ ! -d $path ] ; then
     echo "Initialising qBittorrent default settings..."
-    mkdir $path
+    mkdir -p $path
     cp /defaults/qBittorrent.conf $path/qBittorrent.conf
     chown app:app -R $path
     exit 0

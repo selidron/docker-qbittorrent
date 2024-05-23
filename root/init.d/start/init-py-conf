@@ -1,7 +1,5 @@
 #!/bin/bash
 
-echo "Checking py.conf"
-
 # Get yesterday's date
 date=$(date -d @$(( $(/bin/date +%s ) - 86400 )) +%Y-%m-%d)
 
@@ -20,5 +18,6 @@ if [ ! -f $py_conf ] ; then
     chown app:app /config/py.conf
     exit 0
 else
+    echo "py.conf exists."
     exit 0
 fi

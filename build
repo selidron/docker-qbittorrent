@@ -1,0 +1,8 @@
+#!/bin/bash
+
+name=qbittorrent
+tag=develop
+
+docker build -t selidron/$name:$tag .
+if [ $1 == "push" ] ; then docker push selidron/$name:$tag ; fi
+docker image prune
