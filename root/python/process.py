@@ -108,7 +108,6 @@ class Process:
 
         # Change torrent category
         self.qbt.set_category(self.config.seedCategory)
-        self.qbt.clear_tags()
     
     def scan(self, path) -> bool | Exception:
         process_args=['/usr/bin/clamscan', '-r', '--remove', path]
