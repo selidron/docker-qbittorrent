@@ -1,6 +1,9 @@
 # Docker QBittorrent
 Qbittorrent docker image source files containing methods to automatically update listening port, run AV scan on torrent completion, and copy files to a directory for processing.
 
+## Implements
+<a href=https://github.com/rmartin16/qbittorrent-api>Python qBittorrent API</a>
+
 ## Installation
 
 ### Docker Compose
