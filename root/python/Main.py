@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import argparse
-import json
+import os
 from pathlib import Path
 
 import process
@@ -35,6 +35,9 @@ parser.add_argument('--port', action='store_true',
                     help="Process port forwarding.")
 args = parser.parse_args()
 
+# Initialise UMASK
+os.umask(000)
+
 # Initialise process object
 process = process.Process(
     args.dryrun,
@@ -48,6 +51,10 @@ process.config.logLevel = args.loglevel
 if args.port:
     process.set_port()
     pass
+elif args.touch:
+    t_file:os.path = os.path.abspath(args.touch)
+    with open(t_file, 'w') as f:
+        pass
 elif args.hash:
     process.process(args.hash)
 elif args.manual:
