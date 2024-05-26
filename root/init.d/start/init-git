@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Script uses Git to initialise and pull the scripts directory from Github
+# This script is run once during startup of the container
+#
+# It should be safe to run this script at any time during use
+# provided none of the scripts are currently running.
+# To manually run, simply run /init.d/start/init-git
+
+initalise()
+{
+    cd /
+    git init
+    git remote add origin https://github.com/selidron/docker-qbittorrent
+    git config core.sparseCheckout true
+    echo "/python" > .git/info/sparse-checkout
+}
+
+checkout()
+{
+    git pull origin main
+}
+
+if [ ! -d /.git ] ; then
+    initalise
+else
+    checkout
+fi
