@@ -36,7 +36,7 @@ parser.add_argument('--port', action='store_true',
 args = parser.parse_args()
 
 # Initialise UMASK
-os.umask(os.environ('umask'))
+os.umask(os.environ['umask'])
 
 # Initialise process object
 process = process.Process(
