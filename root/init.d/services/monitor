@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Start Port Monitor in background
+echo "Launching monitoring service..."
+Monitor.py &

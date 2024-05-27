@@ -10,7 +10,7 @@ from hashlib import md5
 from pathlib import Path
 from qbt import QBt
 from Config import Config
-from Config import Config
+import ClamAV
 
 separator = '---------------------'
 
@@ -31,10 +31,7 @@ class Process:
         self.srcPath: Path
 
         # Update clamscan
-        if self.config.clamUpdated.date() < datetime.date.today():
-            subprocess.run(['freshclam'])
-            self.config.update_clam()
-            print(f'\n{separator}\n')
+        ClamAV.update(self.config)
 
         if self.config.dry: print('Dry run enabled, no changes will be made.')
         pass
@@ -75,7 +72,8 @@ class Process:
             if (not self.config.skipScan and not self.config.dry and
                 not "scanned" in self.qbt.get_tags()):
                 print('Beginning AV scan...')
-                self.scan(inputPath)
+                if ClamAV.scan(inputPath):
+                    self.qbt.add_tag("scanned")
             else:
                 print('AV Scan Skipped.')
         except RuntimeError as e:
@@ -108,23 +106,6 @@ class Process:
 
         # Change torrent category
         self.qbt.set_category(self.config.seedCategory)
-    
-    def scan(self, path) -> bool | Exception:
-        process_args=['/usr/bin/clamscan', '-r', '--remove', path]
-        process = subprocess.Popen(process_args, stdout=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-        process.wait()
-
-        lines = stdout.splitlines()
-        for line in lines: print(str(line, 'utf-8'))
-        if process.returncode == 0:
-            self.qbt.add_tag("scanned")
-            return True
-        else:
-            raise RuntimeError(
-                f'Clamscan returned none 0 return code: {process.returncode}\n'
-                f'Stderr: {stderr.splitlines()}'
-                )
 
     def replicate_dir(self, path, name) -> bool | Exception:
         # Set initial path variables

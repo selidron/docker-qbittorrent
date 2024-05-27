@@ -51,10 +51,6 @@ process.config.logLevel = args.loglevel
 if args.port:
     process.set_port()
     pass
-elif args.touch:
-    t_file:os.path = os.path.abspath(args.touch)
-    with open(t_file, 'w') as f:
-        pass
 elif args.hash:
     process.process(args.hash)
 elif args.manual:

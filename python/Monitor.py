@@ -6,8 +6,9 @@ import signal
 from threading import Thread
 
 from qbt import QBt
+from ClamAV import update as update_clamAV
 
-class monitor:
+class Monitor:
     alive = True
     timer = 60 * 60 * 3
     def __init__(self) -> None:
@@ -25,11 +26,15 @@ class monitor:
 
         print('Launching Port Monitor...')
 
-        while monitor.alive:
+        while Monitor.alive:
+            # Update port number
             port = int(open(gluetun_file, 'r').read())
             qbt.set_port(port)
 
-            time.sleep(monitor.timer)
+            # Check for ClamAV Database Updates
+            update_clamAV()
+
+            time.sleep(Monitor.timer)
     
     def set_time(self, time):
         if time and ((isinstance(time, int) and time > 60) or (isinstance(time, str) and time.isnumeric and int(time) > 60)):
@@ -41,8 +46,8 @@ class monitor:
     def kill(self):
         self.alive = False
 
-gluetun_file = '/config/gluetun/forwarded_port'
-monitor = monitor()
-monitor.set_time(os.environ['port_check_interval'])
+gluetun_file = os.environ['gluetun_port_file']
+Monitor = Monitor()
+Monitor.set_time(os.environ['port_check_interval'])
 
-thread = Thread(target=monitor.run)
+thread = Thread(target=Monitor.run)

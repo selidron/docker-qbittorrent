@@ -4,5 +4,10 @@ name=qbittorrent
 tag=develop
 
 docker build -t selidron/$name:$tag .
-if [ $1 == "push" ] ; then docker push selidron/$name:$tag ; fi
-docker image prune
+status=$?
+echo "Build exited with: statuscode:" $status
+
+if [ $status == 0 ] ; then
+    if [ $1 == "push" ] ; then docker push selidron/$name:$tag ; fi
+    docker image prune -f
+fi
