@@ -46,7 +46,7 @@ services:
         -   /seeding/dir:/seeding
         # This is for separating processing directories from download directories
         -   /process/dir:/process
-        # This is an example of using a deparate directory for gluetun file
+        # This is an example of using a separate directory for the gluetun file
         -   /gluetun/forwarded_port/dir:/gluetun
         # This is required
         -   /config/dir:/config
