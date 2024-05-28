@@ -7,6 +7,7 @@ Qbittorrent docker image source files containing methods to automatically update
 ## Installation
 
 ### Docker Compose
+There is a ready to deploy docker-compose.yaml available in the repository. It can used as it, though should be modified to fit your specific setup.
 
 ```yaml
 services:
@@ -29,7 +30,14 @@ services:
         -   gid=1000
         -   umask=000
         -   webui_port=8080         # Port to listen for WebUI traffic
-#        ports: # Uncomment if not using a container VPN, otherwise, port forwarding is done at VPN container
+            #Location to store the script's config file
+        -   py_conf=/config/py.conf
+            # Forwarded port check interval in seconds (10800=3 hrs)
+        -   port_check_interval=10800
+            # Location to find the port file from gluetun
+        -   gluetun_port_file=/config/gluetun/forwarded_port
+        # Uncomment the following if not using a container VPN
+#        ports:
 #        -   8080:8080
         volumes:
         # Modify these as you like to fit your set-up, these paths need to be set in QBittorrent config as well
@@ -38,9 +46,10 @@ services:
         -   /seeding/dir:/seeding
         # This is for separating processing directories from download directories
         -   /process/dir:/process
-        # These are required
-        -   /config/dir:/config
+        # This is an example of using a deparate directory for gluetun file
         -   /gluetun/forwarded_port/dir:/gluetun
+        # This is required
+        -   /config/dir:/config
 ```
 
 <i><b>Something to Consider:</b> Whenever the gluetun container is restarted, the qBittorrent container will also need to be restarted, so it may desireable to keep them within the same compose file for ease of restarts.</i>
@@ -56,6 +65,8 @@ In order for the additional features of this image to function, some configurati
 |   `umask`     |   `000`   |   UMask to apply to file permissions<br>Not implemented yet.  |
 |   `webui_port`|   `8080`  |   Port which the WebUI should be accessible from|
 |   `check_time`|   `10800` |   Seconds to check for port updates (Default: 3hrs)|
+| `py_conf` | `/config/py.conf` | Location to store the configuration file for the scripts. |
+| `gluetun_port_file` | `/config/gluetun/forwarded_port` | Location where Gluetun's forwarded_port file can be access. |
 
 ### Configuring the Scripts
 The python .conf configuration file is located at ```/config/python/.conf```.
