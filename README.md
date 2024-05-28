@@ -64,7 +64,7 @@ In order for the additional features of this image to function, some configurati
 |   `gid`       |   `1000`  |   User Group ID to run qBittorrent |
 |   `umask`     |   `000`   |   UMask to apply to file permissions<br>Not implemented yet.  |
 |   `webui_port`|   `8080`  |   Port which the WebUI should be accessible from|
-|   `check_time`|   `10800` |   Seconds to check for port updates (Default: 3hrs)|
+|   `port_check_interval`|   `10800` |   Seconds to check for port updates (Default: 3hrs)|
 | `py_conf` | `/config/py.conf` | Location to store the configuration file for the scripts. |
 | `gluetun_port_file` | `/config/gluetun/forwarded_port` | Location where Gluetun's forwarded_port file can be access. |
 
