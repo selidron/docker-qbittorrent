@@ -69,7 +69,7 @@ In order for the additional features of this image to function, some configurati
 | `gluetun_port_file` | `/config/gluetun/forwarded_port` | Location where Gluetun's forwarded_port file can be access. |
 
 ### Configuring the Scripts
-The python .conf configuration file is located at ```/config/python/.conf```.
+The python .conf configuration file is located at ```/config/.conf``` by default. This can be changed by via the environment variable `py_conf`. The container will create the file, in either the default or specifiec location, upon first run or any startup in which the file is not found where it should be.
 
 This is a minimal configuration. The file is made of the following fields:
 
